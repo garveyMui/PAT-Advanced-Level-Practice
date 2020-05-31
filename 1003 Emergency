@@ -1,0 +1,337 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include<stdio.h>
+#include<stdlib.h>
+#include <math.h>
+#define N 1000
+#define MaxVerNum 500
+#define Infinity 65525
+typedef int WeightType;
+typedef int Vertex;
+struct ENode
+{
+    Vertex V1,V2;
+    WeightType Weight;
+};
+typedef struct ENode *Edge;
+typedef struct VNode *PtrToVNode;
+struct VNode
+{
+    Vertex V;
+    WeightType Weight;
+    PtrToVNode Next;
+};
+typedef struct VNode *Head;
+struct Node
+{
+    Head List[MaxVerNum];
+    int Nv,Ne;
+};
+typedef struct Node *LGraph;
+LGraph CreateGraph(int Nv)
+{
+    LGraph G;
+    G=(LGraph)malloc(sizeof(struct Node));
+    G->Nv=Nv;
+    G->Ne=0;
+    Vertex V;
+    for(V=0;V<G->Nv;V++)
+    {
+        G->List[V]=malloc(sizeof(struct VNode));
+        G->List[V]->V=V;
+        G->List[V]->Next=NULL;
+        G->List[V]->Weight=0;
+    }
+    return G;
+}
+void InsertGraph(LGraph G,Edge E)
+{
+    PtrToVNode NewNode;
+    NewNode=malloc(sizeof (struct VNode));
+    NewNode->V=E->V2;
+    NewNode->Weight=E->Weight;
+    NewNode->Next=G->List[E->V1]->Next;
+    G->List[E->V1]->Next=NewNode;
+    NewNode=malloc(sizeof (struct VNode));
+    NewNode->V=E->V1;
+    NewNode->Weight=E->Weight;
+    NewNode->Next=G->List[E->V2]->Next;
+    G->List[E->V2]->Next=NewNode;
+}
+
+Vertex FindMinDist(int dist[],int n,int visited[])
+{
+    int i;
+    Vertex Min=-1;
+    for(i=0;i<n;i++)
+    {
+        if(dist[i]!=0&&visited[i]==0)
+        {
+            Min=i;
+            break;
+        }
+    }
+    for(i=0;i<n;i++)
+    {
+        if(dist[i]<dist[Min]&&dist[i]>0&&visited[i]==0)
+            Min=i;
+    }
+    if(dist[Min]!=Infinity)
+        return Min;
+    else
+        return -1;
+}
+
+int FindAlterEdge(Vertex C1, Vertex C2, LGraph G,int path[N],int dist[N])
+{
+    PtrToVNode PtrV;
+    Vertex V=C2,tmp;
+    int factor=0,count=1;
+    while(V!=-1)
+    {
+        for(PtrV=G->List[V]->Next;PtrV!=NULL;PtrV=PtrV->Next)
+        {
+            tmp=C2;
+            while(tmp!=-1)
+            {
+                if(path[tmp]==PtrV->V)
+                {
+                    if(PtrV->Weight+dist[PtrV->V]==dist[V])
+                    {
+                        factor++;
+                    }
+                }
+                tmp=path[tmp];
+            }
+            count*=factor;
+            factor=0;
+        }
+        V=path[V];
+    }
+    return count;
+}
+
+int Dijkstra(Vertex C1, Vertex C2, LGraph G,int path[N],int dist[N])
+{
+    int count=0;
+    int i;
+    for(i=0;i<G->Nv;i++)
+    {
+        path[i]=-1;
+        dist[i]=Infinity;
+    }
+    dist[C1]=0;
+    PtrToVNode PtrV;
+    int visited[N],num[N];
+    for(i=0;i<G->Nv;i++)
+    {
+        num[i]=0;
+        visited[i]=0;
+    }
+    visited[C1]=1;
+    num[C1]=1;
+    for(PtrV=G->List[C1]->Next;PtrV!=NULL;PtrV=PtrV->Next)
+    {
+        path[PtrV->V]=C1;
+        num[PtrV->V]=num[C1];
+        dist[PtrV->V]=PtrV->Weight;
+    }
+    
+    Vertex V;
+    V=FindMinDist(dist,G->Nv,visited);
+    num[V]=num[C1];
+    while(V!=-1)
+    {
+        V=FindMinDist(dist,G->Nv,visited);
+        visited[V]=1;
+        if(V==-1)
+            break;
+        for(PtrV=G->List[V]->Next;PtrV!=NULL;PtrV=PtrV->Next)
+        {
+            if(visited[PtrV->V]!=1)
+            {
+                if(dist[V]+PtrV->Weight<dist[PtrV->V])
+                {
+                    path[PtrV->V]=V;
+                    num[PtrV->V]=num[V];
+                    dist[PtrV->V]=dist[V]+PtrV->Weight;
+                }
+                else if(dist[V]+PtrV->Weight==dist[PtrV->V])
+                {
+                    num[PtrV->V]+=num[V];
+                }
+            }
+            
+        }
+    }
+    
+    count=num[C2];
+   
+    return count;
+}
+int FindAlter(LGraph G,int dist[],int path[],int len,int C2,int Teams[])
+{
+    int count=0;
+    Vertex V=C2;
+    int dist1[N],path1[N];
+    int visited[N];
+    int *visitedList[N];
+    visitedList[0]=malloc(MaxVerNum *sizeof(int));
+    int i,j=1;
+    for(i=0;i<=G->Nv;i++)
+    {
+        visited[i]=0;
+        *(visitedList[0]+i)=-1;
+    }
+    visited[V]=1;
+    *(visitedList[0]+1)=V;
+    int teamNum=0;
+    i=1;
+    do{
+        teamNum+=Teams[V];
+        V=path[V];
+        *(visitedList[0]+(++i))=V;
+        visited[V]=1;
+        
+    }while(path[V]!=-1);
+    teamNum+=Teams[V];
+    *(visitedList[0])=i;
+    int teamNum1=0;
+    int k=1;
+    for(V=0;V<G->Nv;V++)
+    {
+        teamNum1=0;
+        if(dist[V]>0&&dist[V]<Infinity&&V!=C2)
+        {
+            Dijkstra(V,C2,G,path1,dist1);
+            if(dist[V]+dist1[C2]==dist[C2])
+            {
+                visitedList[j]=malloc(MaxVerNum *sizeof(int));
+                
+                Vertex tmp=C2;
+                for(i=0;i<G->Nv;i++)
+                {
+                    *(visitedList[j]+i)=-1;
+                }
+                *(visitedList[j]+1)=tmp;
+                k=1;
+                do{
+                    teamNum1+=Teams[tmp];
+                    tmp=path1[tmp];
+                    *(visitedList[j]+(++k))=tmp;
+                }while(path1[tmp]!=-1);
+                do{
+                    teamNum1+=Teams[tmp];
+                    tmp=path[tmp];
+                    *(visitedList[j]+(++k))=tmp;
+                }while(path[tmp]!=-1);
+                teamNum1+=Teams[tmp];
+                *(visitedList[j])=k;
+                int flag=0;
+                for(k=0;k<j;k++)
+                {
+                    for(i=0;i<G->Nv;i++)
+                    {
+                        if(*(visitedList[j]+i)!=*(visitedList[k]+i))
+                        {
+                            flag++;
+                            break;
+                        }
+                    }
+                }
+                if(flag==j)
+                {
+                    count++;
+                    j++;
+                    teamNum=teamNum>teamNum1?teamNum:teamNum1;
+                }
+                else
+                {
+                    free(visitedList[j]);
+                }
+                flag=0;
+            }
+        }
+    }
+    printf(" %d",teamNum);
+    return count;
+}
+LGraph BuildGraph()
+{
+    LGraph G;
+    int Nv;
+    scanf("%d",&Nv);
+    G=CreateGraph(Nv);
+    scanf("%d",&G->Ne);
+    Vertex C1,C2;
+    scanf("%d %d",&C1,&C2);
+    int Teams[MaxVerNum];
+    int i;
+    for(i=0;i<G->Nv;i++)
+    {
+        scanf("%d",&Teams[i]);
+    }
+    Edge E;
+    E=(Edge)malloc(sizeof(struct ENode));
+    for(i=0;i<G->Ne;i++)
+    {
+        scanf("%d %d %d",&E->V1,&E->V2,&E->Weight);
+        InsertGraph(G,E);
+    }
+    int path[N],dist[N];
+    if(C1!=C2)
+    {
+        int count;
+        count=Dijkstra(C1,C2,G,path,dist);
+        printf("%d",count);
+        int len=dist[C2];
+        FindAlter(G,dist,path,len,C2,Teams);
+    }
+    else
+    {
+        printf("1 %d",Teams[C1]);
+    }
+    return G;
+}
+int main(int argc, char *argv[])
+{
+    LGraph G;
+    G=BuildGraph();
+    
+    return 0;
+}
+
+/**
+ 6 7 0 3
+ 1 2 3 4 5 6
+ 0 1 5
+ 1 2 6
+ 2 3 7
+ 1 4 7
+ 4 3 6
+ 4 5 4
+ 5 3 2
+ 
+ 6 8 0 2
+ 1 1 1 1 1 1
+ 0 1 1
+ 0 2 1000
+ 0 3 4
+ 0 4 3
+ 1 5 1
+ 4 5 1
+ 3 4 1
+ 2 3 2
+ 
+ 4 4 0 3
+ 1 2 3 4
+ 0 1 3
+ 1 2 2
+ 2 3 1
+ 1 3 3
+*/
