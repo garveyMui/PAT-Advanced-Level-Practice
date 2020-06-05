@@ -1,0 +1,124 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include<stdio.h>
+#include<stdlib.h>
+#define N 200
+typedef struct TreeNode *PtrToNode;
+struct TreeNode{
+    int Name;
+    PtrToNode FirstSon;
+    PtrToNode Brother;
+};
+typedef PtrToNode Tree;
+
+Tree BuildTree(void)
+{
+    Tree T;
+    int n,m;
+    scanf("%d %d",&n,&m);
+    T=malloc(n*sizeof(struct TreeNode));
+    int i,j;
+    int father,Ns,son;
+    for(i=0;i<m;i++)
+    {
+        scanf("%d %d",&father,&Ns);
+        (T+father-1)->Name=father;
+        (T+father-1)->FirstSon=NULL;
+        (T+father-1)->Brother=NULL;
+        (T+father-1)->FirstSon=malloc(sizeof(struct TreeNode));
+        scanf("%d",&son);
+        (T+father-1)->FirstSon->Name=son;
+        (T+father-1)->FirstSon->FirstSon=NULL;
+        (T+father-1)->FirstSon->Brother=NULL;
+        
+        PtrToNode tmp=(T+father-1)->FirstSon;
+        
+        for(j=1;j<Ns;j++)
+        {
+            scanf("%d",&son);
+            tmp->Brother=malloc(sizeof(struct TreeNode));
+            tmp=tmp->Brother;
+            tmp->Name=son;
+            tmp->FirstSon=NULL;
+            tmp->Brother=NULL;
+        }
+    }
+    return T;
+}
+struct QNode
+{
+    int Front;
+    int Rear;
+    int Data[N];
+};
+typedef struct QNode *Queue;
+
+void Enqueue(Queue Q,int t)
+{
+    Q->Data[++Q->Rear]=t;
+}
+int Dequeue(Queue Q)
+{
+    int result;
+    result=Q->Data[Q->Front];
+    Q->Front++;
+    return result;
+}
+int main(int argc, char *argv[])
+{
+    int count=0,flag=0,flag1=0;
+    Tree T=BuildTree();
+    Queue Q=(Queue)malloc(sizeof(struct QNode));
+    Q->Front=0;
+    Q->Rear=-1;
+    int tmp;
+    PtrToNode tmp1=T;
+    tmp=T->Name;
+    int Last=Q->Rear;
+    Enqueue(Q,tmp);
+    
+    while(Q->Front<=Q->Rear)
+    {
+        tmp=Dequeue(Q);
+        for(tmp1=(T+tmp-1)->FirstSon;tmp1!=NULL;tmp1=tmp1->Brother)
+        {
+            tmp=tmp1->Name;
+            Enqueue(Q, tmp);
+            flag=1;
+        }
+        if(flag==0)
+        {
+            count++;
+        }
+        flag=0;
+        if(Q->Front>Last)
+        {
+            if(flag1==0)
+            {
+                printf("%d",count);
+                flag1=1;
+            }else
+            {
+                printf(" %d",count);
+            }
+            Last=Q->Rear;
+            count=0;
+        }
+    }
+    return 0;
+}
+
+/**
+ 12 6
+ 01 3 02 03 04
+ 02 3 05 06 07
+ 04 2 08 09
+ 05 1 10
+ 06 1 11
+ 11 1 12
+ */
