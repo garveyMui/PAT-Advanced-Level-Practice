@@ -1,0 +1,33 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include<stdio.h>
+#include<stdlib.h>
+#define N 101
+int main(int argc, char *argv[])
+{
+    char n[N];
+    scanf("%s",n);
+    int sum=0,i;
+    for(i=0;n[i]!='\0';i++)
+    {
+        sum+=n[i]-'0';
+    }
+    char m[N];i=0;
+    while(sum!=0)
+    {
+        m[i]=sum%10;
+        sum/=10;
+        i++;
+    }
+    char *num[10]={"zero","one","two","three","four","five","six","seven","eight","nine"};
+    printf("%s",num[m[--i]]);
+    for(i--;i>=0;i--)
+    {
+        printf(" %s",num[m[i]]);
+    }
+}
