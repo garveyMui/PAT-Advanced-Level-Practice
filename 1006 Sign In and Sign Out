@@ -1,0 +1,73 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define N 101
+struct record{
+    char ID[N];
+    unsigned long signin;
+    unsigned long signout;
+};
+void InsertSort(struct record today[],int n)
+{
+    struct record tmp;
+    int i,j;
+    for(i=1;i<n;i++)
+    {
+        tmp=today[i];
+        for(j=i-1;j>=0&&tmp.signin<today[j].signin;j--)
+        {
+            today[j+1]=today[j];
+        }
+        today[j+1]=tmp;
+    }
+}
+void InsertSort1(struct record today[],int n)
+{
+    struct record tmp;
+    int i,j;
+    for(i=1;i<n;i++)
+    {
+        tmp=today[i];
+        for(j=i-1;j>=0&&tmp.signout>today[j].signout;j--)
+        {
+            today[j+1]=today[j];
+        }
+        today[j+1]=tmp;
+    }
+}
+char *Sort(struct record today[],int flag,int n)
+{
+    if(flag==0)
+        InsertSort(today,n);
+    else
+        InsertSort1(today,n);
+    return today[0].ID;
+}
+int main(int argc, char *argv[])
+{
+    int n;
+    scanf("%d",&n);
+    struct record today[n];
+    int i,h,m,s;
+    for(i=0;i<n;i++)
+    {
+        scanf("%s",today[i].ID);
+        scanf("%d:%d:%d",&h,&m,&s);
+        today[i].signin=s+m*60+h*3600;
+        scanf("%d:%d:%d",&h,&m,&s);
+        today[i].signout=s+m*60+h*3600;
+    }
+    char ID[N];
+    strcpy(ID,Sort(today,0,n));
+    printf("%s",ID);
+    strcpy(ID,Sort(today,1,n));
+    printf(" %s",ID);
+    return 0;
+}
