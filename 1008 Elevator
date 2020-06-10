@@ -1,0 +1,35 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define N 10000
+
+int main(int argc, char *argv[])
+{
+    int n;
+    scanf("%d",&n);
+    int floor,time=0,nextfloor;
+    scanf("%d",&floor);
+    time+=6*floor+5;
+    int i;
+    for(i=1;i<n;i++)
+    {
+        scanf("%d",&nextfloor);
+        if(floor<nextfloor)
+        {
+            time+=6*(nextfloor-floor)+5;
+        }else
+        {
+            time+=4*(floor-nextfloor)+5;
+        }
+        floor=nextfloor;
+    }
+    printf("%d",time);
+    return 0;
+}
