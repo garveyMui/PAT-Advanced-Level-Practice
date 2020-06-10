@@ -1,0 +1,46 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define N 10000
+
+int main(int argc, char *argv[])
+{
+    int n,a[N];
+    scanf("%d",&n);
+    int i,j;
+    for(i=0;i<n;i++)
+    {
+        scanf("%d",&a[i]);
+    }
+    int front=0,rear=0,max=-1,tmp=0;
+    for(i=0;i<n;i++)
+    {
+        for(j=i;j<n;j++)
+        {
+            tmp=tmp+a[j];
+            if(tmp>max)
+            {
+                front=a[i];
+                rear=a[j];
+                max=tmp;
+            }
+            if(tmp<0)
+            {
+                break;
+            }
+        }
+        tmp=0;
+    }
+    if(max>=0)
+    printf("%d %d %d",max,front,rear);
+    else
+        printf("0 %d %d",a[0],a[n-1]);
+    return 0;
+}
