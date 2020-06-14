@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 100000
+struct Node{
+    int exponent;
+    float coefficient;
+};
+
+int main()
+ {
+     int k0,k1;
+     struct Node a[N],b[N];
+     int i,j;
+     scanf("%d",&k0);
+     for(i=0;i<k0;i++)
+     {
+         scanf("%d %f",&a[i].exponent,&a[i].coefficient);
+     }
+     scanf("%d",&k1);
+     for(i=0;i<k1;i++)
+     {
+         scanf("%d %f",&b[i].exponent,&b[i].coefficient);
+     }
+     int maxExponent=a[0].exponent+b[0].exponent;
+     struct Node *c[N];
+     for(i=0;i<k0;i++)
+     {
+         c[i]=(struct Node *)malloc(k1*sizeof(struct Node));
+         for(j=0;j<k1;j++)
+         {
+             (c[i]+j)->exponent=a[i].exponent+b[j].exponent;
+             (c[i]+j)->coefficient=a[i].coefficient*b[j].coefficient;
+         }
+     }
+     float result[N];
+     for(i=0;i<k1;i++)
+     {
+         result[(c[0]+i)->exponent]=(c[0]+i)->coefficient;
+     }
+     for(i=1;i<k0;i++)
+     {
+         for(j=0;j<k1;j++)
+         {
+             result[(c[i]+j)->exponent]+=(c[i]+j)->coefficient;
+         }
+     }
+     int top=-1;
+     struct Node finalResult[N];
+     for(i=0;i<=maxExponent;i++)
+     {
+         if(result[i]!=0)
+         {
+             finalResult[++top].coefficient=result[i];
+             finalResult[top].exponent=i;
+         }
+     }
+     printf("%d",top+1);
+     for(i=top;i>=0;i--)
+     {
+         printf(" %d %.1f",finalResult[i].exponent,finalResult[i].coefficient);
+     }
+     return 0;
+ }
