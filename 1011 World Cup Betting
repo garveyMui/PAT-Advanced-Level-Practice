@@ -1,0 +1,46 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define N 100000
+
+int main()
+ {
+     int i,j,mark;
+     float odds,tmp,finalOdds=1;
+     for(i=0;i<3;i++)
+     {
+         odds=0;
+         for(j=0;j<3;j++)
+         {
+             scanf("%f",&tmp);
+             if(tmp>odds)
+             {
+                 mark=j;
+                 odds=tmp;
+             }
+         }
+         switch(mark)
+         {
+             case 0:
+                 printf("W ");
+                 break;
+             case 1:
+                 printf("T ");
+                 break;
+             case 2:
+                 printf("L ");
+                 break;
+         }
+         finalOdds*=odds;
+     }
+     printf("%.2f",(finalOdds*0.65-1)*2);
+     return 0;
+ }
