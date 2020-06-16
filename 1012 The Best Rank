@@ -1,0 +1,132 @@
+//
+//  main.c
+//  20200404
+//
+//  Created by 梅佳伟 on 2020/4/4.
+//  Copyright © 2020 梅佳伟. All rights reserved.
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define N 100000
+
+struct Student{
+    char ID[7];
+    int Grade[4];
+    int Rank[4];
+};
+struct tmp{
+    char ID[7];
+    int Grade;
+    int Pos;
+};
+enum{A,C,M,E}Course;
+void InsertSort(struct tmp rank[],int n)
+{
+    int i,j;
+    struct tmp tmp;
+    for(i=1;i<=n;i++)
+    {
+        tmp=rank[i];
+        for(j=i-1;j>=0;j--)
+        {
+            if(tmp.Grade>rank[j].Grade)
+            {
+                rank[j+1]=rank[j];
+            }
+            else
+            {
+                break;
+            }
+        }
+        rank[j+1]=tmp;
+    }
+}
+void InsertSelect(struct Student a[],int n, int Course)
+{
+    struct tmp rank[n];
+    int i,j;
+    for(i=0;i<n;i++)
+    {
+        strcpy(rank[i].ID,a[i].ID);
+        rank[i].Grade=a[i].Grade[Course];
+        rank[i].Pos=i;
+    }
+    InsertSort(rank,n);
+    a[rank[0].Pos].Rank[Course]=0;
+    for(i=1;i<n;i++)
+    {
+        if(a[rank[i].Pos].Grade[Course]!=
+           a[rank[i-1].Pos].Grade[Course])
+        {
+            a[rank[i].Pos].Rank[Course]=i;
+        }else
+        {
+            a[rank[i].Pos].Rank[Course]=a[rank[i-1].Pos].Rank[Course];
+        }
+        
+    }
+}
+
+void Find(char *Check,struct Student a[],int n)
+{
+    int Course=0;
+    int i,j;
+    char CourseName[4]={'A','C','M','E'};
+    for(i=0;i<n;i++)
+    {
+        if(strcmp(a[i].ID,Check)==0)
+        {
+            for(j=1;j<4;j++)
+            {
+                if(a[i].Rank[j]<a[i].Rank[Course])
+                {
+                    Course=j;
+                }
+            }
+            printf("%d %c\n",a[i].Rank[Course]+1,CourseName[Course]);
+            return;
+        }
+    }
+    printf("N/A\n");
+    return;
+}
+
+int main()
+ {
+     int n,m;
+     scanf("%d %d",&n,&m);
+     int i;
+     struct Student a[n];
+     for(i=0;i<n;i++)
+     {
+         scanf("%s",a[i].ID);
+         a[i].Rank[A]=i;
+         a[i].Rank[C]=i;
+         a[i].Rank[M]=i;
+         a[i].Rank[E]=i;
+         scanf("%d",&a[i].Grade[C]);
+         scanf("%d",&a[i].Grade[M]);
+         scanf("%d",&a[i].Grade[E]);
+         a[i].Grade[A]=(a[i].Grade[C]+a[i].Grade[M]+a[i].Grade[E])/3;
+     }
+     for(i=0;i<4;i++)
+     {
+         InsertSelect(a,n,i);
+     }
+     /*InsertSelect(a,n,A);
+     InsertSelect(a,n,C);
+     InsertSelect(a,n,M);
+     InsertSelect(a,n,E);*/
+     char *Check[m];
+     for(i=0;i<m;i++)
+     {
+         Check[i]=malloc(7*sizeof(char));
+         scanf("%s",Check[i]);
+     }
+     for(i=0;i<m;i++)
+     {
+         Find(Check[i],a,n);
+     }
+     return 0;
+ }
