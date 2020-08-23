@@ -1,0 +1,131 @@
+#include<iostream>
+#include<cstdio>
+#define N 100
+using std::cin;
+using std::endl;
+using std::cout;
+struct TreeNode {
+    int weight, Nc = 0, current = 0;
+    int child [N];
+};
+class Tree {
+private:
+    int nodes, nonLeaf, checkWeight, root = 0; TreeNode* elem;
+    int* path[N];
+protected:
+    int DFS(int p) { //coreCode
+        int i = root; int mark = 0;
+        int weight = elem[root].weight;
+        path[p][mark++] = root;
+        if (weight == checkWeight) { //done
+            path[p][mark] = -1;
+            return 1;
+        }
+        while (true) {
+            if (i == root && elem[i].current == elem[i].Nc) {
+                break;
+            }
+            if ((elem[i].Nc != 0) && (elem[i].current < elem[i].Nc)) {
+                i = elem[i].child[elem[i].current];
+                path[p][mark] = i;
+                weight += elem[path[p][mark++]].weight;
+            }
+            else {
+                if ((weight == checkWeight) && (elem[i].Nc == 0)) {
+                    path[p][mark] = -1;
+                    path[++p] = new int[N];
+                    for (int i = 0; i < mark; i++) {
+                        path[p][i] = path[p - 1][i];
+                    }
+                }
+                weight -= elem[path[p][--mark]].weight;
+                i = path[p][mark - 1];
+                elem[i].current++;
+            }
+        }
+        return p;
+    }
+    bool cmp(int* a, int* b) {
+        for (int i = 0; a[i] != -1; i++) {
+            if (elem[a[i]].weight > elem[b[i]].weight) {
+                return true;
+            }
+            else if (elem[a[i]].weight < elem[b[i]].weight) {
+                return false;
+            }
+            else {}
+        }
+    }
+    int binSearch(int* e, int lo, int hi) {
+        for (int mi = (lo + hi) / 2; lo < hi; mi = (lo + hi) / 2) {
+            if (cmp(e, path[mi])) {
+                hi = mi;
+            }
+            else {
+                lo = mi + 1;
+            }
+        }
+        return lo - 1;
+    }
+public:
+    Tree(int n, int m, int s) {
+        nodes = n; nonLeaf = m; checkWeight = s;
+        elem = new TreeNode [n];
+    }
+    void inPut() {
+        for (int i = 0; i < nodes; i++) {
+            scanf("%d", &elem[i].weight);
+        }
+        for (int i = 0; i < nonLeaf; i++) {
+            int num;
+            scanf("%d", &num);
+            scanf("%d", &elem[num].Nc);
+            for (int j = 0; j < elem[num].Nc; j++) {
+                scanf("%d", &elem[num].child[j]);
+            }
+        }       
+    }   
+    int findPath() {
+        path[0] = new int [nodes];
+        return  DFS(0);      
+    }
+    void sort(int n) { //insertionSort, to be really ordered
+        for (int i = 1; i < n; i++) {
+            int* e = path[i];
+            int r = binSearch(e, 0, i) + 1;
+            for (int j = i; j > r; j--) {
+                path[j] = path[j - 1];
+            }
+            path[r] = e;
+        }
+    }
+    void outPut(int nResult) {
+        for (int i = 0; i < nResult; i++) {
+            printf("%d", elem[path[i][0]].weight);
+            for (int j = 1; path[i][j] != -1; j++) {
+                printf(" %d", elem[path[i][j]].weight);
+            }
+            cout << endl;
+        }
+    }
+};
+int main() {
+    int n, m, s; //nodes non-leaf weight
+    //dijkstra DFS BFS 均可
+    cin >> n >> m >> s;
+    Tree t(n, m, s);
+    t.inPut();
+    int nPath = t.findPath();
+    t.sort(nPath);
+    t.outPut(nPath);
+    return 0;
+}
+
+/* special test
+6 4 24
+13 3 3 6 2 8
+0 2 1 2
+1 1 3
+2 1 5
+3 1 4
+*/
