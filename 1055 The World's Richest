@@ -1,0 +1,132 @@
+#include<iostream>
+#include<cstring>
+#include<cstdio>
+#define N 100000
+using std::cin;
+using std::endl;
+using std::cout;
+struct Identity {
+    int age, net_worth;
+    char name[9];
+};
+class Rich {
+private:
+    int numbers, queries;
+    Identity* ageBucket[200]; int* table[200];    
+    Identity* toBeChecked;    Identity sortContainer[N];
+    enum {sorted = 1};
+protected:
+    void heapSort(int table[], int n, int flag) { //flag用于最终排序提前终止
+        for (int i = n / 2; i > 0; i--) {
+            percDown(i, n, table);
+        }
+        flag = n - flag > 0 ? n - flag : 1;
+        for (int i = n; i > flag; i--) {
+            swap(table[1], table[i]);
+            percDown(1, i - 1, table);
+        }
+    }
+    void swap(int& a, int& b) {
+        int c = a; a = b; b = c;
+    }
+    bool cmp(const Identity& a, const Identity& b) { //需修缮
+        if (a.net_worth != b.net_worth) {
+            return a.net_worth < b.net_worth;          
+        }
+        else {
+            if (a.age != b.age) {
+                return a.age > b.age;
+            }
+            else {
+                return strcmp(a.name, b.name) > 0;
+            }
+        }
+    }
+    void percDown(int r, int n, int table[]) { //就地算法建最富堆  结果为穷到富序
+        int tag = table[r];
+        int i = r;
+        while (2 * i <= n) {
+            i *= 2;
+            if ((i + 1 <= n) && (cmp(toBeChecked[table[i]], toBeChecked[table[i + 1]])))  i++; 
+            if (cmp(toBeChecked[tag], toBeChecked[table[i]]))  table[i/2] = table[i];
+            else {
+                i /= 2; break;
+            }
+        }
+        table[i] = tag;
+    }
+public:
+    Rich(int n, int m) {
+        numbers = n; queries = m;
+        for (int i = 0; i < 200; i++) {
+            ageBucket[i] = new Identity[numbers + 1];
+            ageBucket[i][0].age = 0;
+            table[i] = new int[numbers + 1];
+            table[i][0] = 0;
+        }
+    }
+    void inPut() {
+        for (int i = 0; i < numbers; i++) {
+            char name[9]; int age, net_worth;
+            scanf("%s", name);
+            scanf("%d %d", &age, &net_worth);
+            int current = ++ageBucket[age - 1][0].age;
+            table[age - 1][current] = current;
+            ageBucket[age - 1][current].age = age;
+            ageBucket[age - 1][current].net_worth = net_worth;
+            strcpy(ageBucket[age - 1][current].name, name);
+        }
+    }
+    void eliminated(int rank) {
+        int* table = this->table[rank];
+        if (sorted == table[0]) return;
+        toBeChecked = ageBucket[rank];
+        int lengthOfTable = ageBucket[rank][0].age;
+        heapSort(table, lengthOfTable, lengthOfTable);
+        table[0] = sorted;
+    }
+    int check(int actualNum, int maxNum, int lo, int hi, int table[]) {
+        toBeChecked = sortContainer;
+        for (int i = lo - 1; i < hi; i++) {
+            int unitNum = ageBucket[i][0].age;
+            int n = unitNum < maxNum ? unitNum : maxNum;
+            for (int j = 0; j < n; j++) {
+                table[++actualNum] = actualNum;
+                toBeChecked[actualNum] = ageBucket[i][this->table[i][unitNum - j]];
+            }
+        }
+        heapSort(table, actualNum, maxNum);
+        return actualNum;
+    }
+    void outPut(int table[], int actualNum, int maxNum) {        
+        if(0 == actualNum){
+            cout << "None" << endl;
+            return;
+        }
+        int n = actualNum < maxNum ? actualNum : maxNum;
+        for (int i = 0; i < n; i++) {  //实际数组末端输出
+            const Identity& someone = toBeChecked[table[actualNum - i]];
+            printf("%s", someone.name);
+            printf(" %d", someone.age);
+            printf(" %d\n", someone.net_worth);
+        }           
+    }
+};
+int main() {
+    int n, m;
+    cin >> n >> m;
+    Rich r(n, m);
+    r.inPut();
+    int table[N];
+    for (int i = 0; i < m; i++) {
+        int maxNum, lo, hi;
+        scanf("%d %d %d", &maxNum, &lo, &hi);
+        printf("Case #%d:\n", i + 1);
+        for (int j = lo; j <= hi; j++) {
+            r.eliminated(j - 1);
+        }
+        int actualNum = r.check(0, maxNum, lo, hi, table);
+        r.outPut(table, actualNum, maxNum);
+    }
+    return 0;
+}
