@@ -1,0 +1,117 @@
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#define N 20
+using std::cin;
+using std::endl;
+using std::cout;
+class Float {
+private:
+    int length[2]{ 0 };
+    char* num[2];
+    int significantDigit;
+protected:
+    void reshape(int start, int no) {
+        if (num[no][start] == '\0') {
+            num[no][0] = '0';
+            num[no][1] = '\0';
+        }
+        else {
+            int i = 0;
+            for (int j = 0; num[no][start + j] != '\0'; j++) {
+                if (num[no][start + j] != '.') {
+                    num[no][i++] = num[no][start + j];
+                }
+            }
+            num[no][i] = '\0';
+        }
+    }
+    void print(int no) {
+        printf(" 0.");
+        for (int i = 0; i < significantDigit; i++) {
+            if (num[no][i] != '\0')
+                printf("%c", num[no][i]);
+            else {
+                for (int j = i; j < significantDigit; j++) {
+                    printf("0");
+                }
+                break;
+            }
+        }
+        printf("*10^%d", length[no]);
+    }
+public:
+    Float(int n) {
+        significantDigit = n;
+    }
+    void inPut() {
+        for (int i = 0; i < 2; i++) {
+            num[i] = new char [104];
+            scanf("%s", num[i]);
+        }
+    }
+    void statistic() {       
+        for (int i = 0; i < 2; i++) {
+            int dot = -1, nonZero = -1; int j;
+            for ( j = 0; num[i][j] != '\0'; j++) {
+                if(num[i][j]=='.') dot = j;
+                else if (nonZero == -1) {
+                    if (num[i][j] != '0') {
+                        nonZero = j;
+                    }
+                }
+            }
+            if (-1 == dot) {
+                dot = j;
+            }
+            if (-1 != nonZero) {
+                if (nonZero < dot) {
+                    length[i] = dot - nonZero;
+                }
+                else {
+                    length[i] = dot - nonZero + 1;
+                }
+                reshape(nonZero, i);
+            }
+            else {
+                nonZero = j;
+                length[i] = 0;
+                reshape(nonZero, i);
+            }
+        }
+        
+    }
+    bool compare() {
+        if(length[0]!=length[1]) return false;
+        for (int i = 0; i < significantDigit; i++) {
+            if (num[0][i] != num[1][i]) {
+                return false;
+            }
+            else if(num[0][i] == '\0'){ //待校验数字长度小于significantDigit分支
+                return true;
+            }
+        }
+        return true;
+    }
+    void outPut(bool flag) {
+        if (flag) {
+            cout << "YES";
+            print(0);
+        }
+        else {
+            cout << "NO";
+            print(0);
+            print(1);
+        }
+    }
+};
+
+int main() {
+    int n;
+    cin >> n;
+    Float f(n);
+    f.inPut();
+    f.statistic();
+    f.outPut(f.compare());
+    return 0;
+}
