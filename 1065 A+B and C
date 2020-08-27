@@ -1,0 +1,62 @@
+#include<iostream>
+#include<cstdio>
+#include<string>
+#include<vector>
+using std::cin;
+using std::endl;
+using std::cout;
+
+class Compare {
+private:
+    std::vector<long long int> v;
+    std::vector<double> remanent;
+    std::string max{ "9223372036854775808" };
+    long long int part = (9223372036854775807 / 2 + 1) / 2;
+protected:
+    long long int myAtoll(std::string s) {
+        long long int result = 0; bool isNegative = false;
+        int start = 0;
+        if (s[0] == '-') {
+            isNegative = true;
+            start++;
+        }
+        for (int i = start; i < s.size(); i++) {
+            result = result * 10 + (s[i] - '0');
+        }
+        if (isNegative) {
+            result *= -1;
+        }
+        return result;
+    }
+public:     
+    Compare() {        
+        std::string sTmp;
+        for (int j = 0; j < 3; j++) {
+            cin >> sTmp;
+            if (sTmp == max) {
+                v.push_back(part);
+                remanent.push_back(((9223372036854775807 / 2 + 1)%2)/(2.0));
+            }
+            else {
+                long long int tmp = myAtoll(sTmp);
+                v.push_back(tmp / 4);
+                remanent.push_back((tmp%4)/(4.0));                  
+            }
+        }
+    }
+    void outPut() {
+        cout << std::boolalpha << (remanent[0]+remanent[1] - remanent[2] > v[2]- v[0] - v[1]);
+    } 
+};
+
+int main() {  //位图？   
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        Compare p;
+        cout << "Case #" << (i+1) << ": ";        
+        p.outPut();
+        cout << endl;
+    }   
+    return 0;
+}
