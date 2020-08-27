@@ -1,0 +1,71 @@
+#include<iostream>
+#include<cstdio>
+#include<cctype>
+#include<string>
+#include<vector>
+using std::cin;
+using std::endl;
+using std::cout;
+class Decode {
+private:
+    std::vector<std::string> code;
+    int day, hour, minute;
+    int start;
+protected:
+    int whichDay() {
+        for (int i = 0; i < code[0].size(); i++) {
+            if (code[0][i] == code[1][i]) {
+                if (code[0][i] >= 'A' && code[0][i] <= 'G') {
+                    start = i;
+                    return code[0][i] - 'A' + 1;
+                }
+            }
+        }
+    }
+    int whichHour(int ignore) {
+        for (int i = ignore + 1; i < code[0].size(); i++) {
+            if (code[0][i] == code[1][i]) {
+                if (isdigit(code[0][i])) {
+                    return code[0][i] - '0';
+                }
+                if (code[0][i] >= 'A' && code[0][i] <= 'N') {
+                    return code[0][i] - 'A' + 10;
+                }
+            }
+        }
+    }
+    int whichMinute() {
+        for (int i = 0; i < code[2].size(); i++) {
+            if (code[2][i] == code[3][i]) {
+                if (isalpha(code[2][i])) {
+                    return i;
+                }
+            }
+        }
+    }
+public:    
+    Decode() {
+        for (int i = 0; i < 4; i++) {
+            std::string sTmp;
+            cin >> sTmp;
+            code.push_back(sTmp);
+        }
+    }
+    void findDating() {
+        day = whichDay();
+        hour = whichHour(start);
+        minute = whichMinute();
+    }
+    void outPut() {
+        const char* week[7] = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
+        printf("%s", week[day-1]);
+        printf(" %02d", hour);
+        printf(":%02d", minute);
+    }
+};
+int main() {
+    Decode d;
+    d.findDating();
+    d.outPut();  
+    return 0;
+}
