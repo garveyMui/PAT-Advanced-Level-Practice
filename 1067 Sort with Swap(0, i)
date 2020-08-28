@@ -1,0 +1,56 @@
+#include <iostream>
+#include <cstdio>
+#include <vector>
+using std::cin;
+using std::endl;
+using std::cout;
+int findReady(std::vector<int>& v) {
+    int count = 0;
+    for (int i = 0; i < v.size(); i++) {
+        if (v[i] == i) {
+            count++;
+        }
+    }
+    return count;
+}
+int findLoop(std::vector<int>& v) {
+    int count = 0;
+    int rank = -1, next, flag = 0;
+    while (++rank < v.size()) {
+        
+        while (v[rank] != -1 && v[rank] != rank) {
+            flag = 1;
+            next = v[rank];
+            v[rank] = -1;
+            rank = next;
+        }
+        if (flag == 1) {
+            count++;
+            flag = 0;
+        }            
+    }
+    return count;
+}
+int main()
+{
+    int n;
+    cin >> n;
+    std::vector <int> v;
+    for (int i = 0; i < n; i++) {
+        int e;
+        scanf("%d", &e);
+        v.push_back(e);
+    }
+    int selfLoop = findReady(v);
+    int realLoop = findLoop(v);
+    int fewer, extra;
+    if (v[0] != 0) { //0所在的真循环节相当于可额外减少一次交换
+        fewer = 1 + selfLoop;
+        extra = realLoop - 1;     //0不在的真循环节都会多一次交换
+    }
+    else {
+        fewer = 0 + selfLoop;
+        extra = realLoop;        
+    }
+    cout << (v.size() - fewer + extra);
+}
