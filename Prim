@@ -1,0 +1,82 @@
+#include<iostream>
+#include<stdlib.h>
+#include<vector>
+#include<algorithm>
+#include<limits.h>
+using namespace std;
+struct listIndex{
+    int i;
+    int* p;
+    listIndex(int a,int* b) : i(a), p(b){}
+};
+template<>
+struct std::greater<listIndex>{
+    bool operator()(listIndex a, listIndex b){
+        return *(a.p)>*(b.p);
+    }
+};
+class graph{
+public:
+    struct vertex{
+        int num, weight;
+        vertex* next;
+        vertex(int n, int w) : num(n), weight(w){
+            next = nullptr;
+        }
+    };
+    struct listNode{
+        vertex* first;
+        int priority = INT_MAX;
+    };
+    vector<listNode>* list;
+    int Nv, Ne;
+    graph(int num){
+        Nv = num;
+        list = new vector<listNode>(num);
+    }
+    void insert(int u, int v, int weight){
+        vertex* tmp = new vertex(v, weight);
+        tmp->next = (*list)[u].first;
+        (*list)[u].first = tmp;
+    }
+    int Prim(){
+        //int s = 0;
+        int result = 0;
+        vector<listIndex> h;
+        for(int i = 0; i < Nv; i++){
+            h.emplace_back(*(new listIndex(i, &(*list)[i].priority)));
+        }
+        *(h[0].p) = 0;
+        while(!h.empty()){
+            int tmp = h[0].i;
+            if((*list)[tmp].priority == INT_MAX){
+                return -1;
+            }
+            result += (*list)[tmp].priority;
+            pop_heap(h.begin(), h.end(), greater<listIndex>());
+            h.pop_back();
+            for(vertex* i = (*list)[tmp].first; i != nullptr; i = i->next){
+                if((*list)[(*i).num].priority > (*i).weight){
+                    (*list)[(*i).num].priority = (*i).weight;
+                }
+            }
+            make_heap(h.begin(), h.end(), greater<listIndex>());
+        }
+        return result;
+    }
+};
+int main(void){
+    int n;
+    cin >> n;
+    graph mg(n);
+    cin >> n;
+    int u,v,w;
+    for(int i = 0; i < n; i++){
+        scanf("%d %d %d",&u,&v,&w);
+        getchar();
+        mg.insert(u-1, v-1, w);
+        mg.insert(v-1, u-1, w);
+    }
+    cout << mg.Prim();
+    return 0;
+}
