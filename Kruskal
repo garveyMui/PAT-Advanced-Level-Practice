@@ -1,0 +1,106 @@
+#include<iostream>
+#include<stdlib.h>
+#include<vector>
+#include<algorithm>
+#include<limits.h>
+using namespace std;
+class graph{
+public:
+    struct vertex{
+        int num, weight;
+        vertex* next;
+        vertex(int n, int w) : num(n), weight(w){
+            next = nullptr;
+        }
+    };
+    struct listNode{
+        vertex* first;
+        int priority = INT_MAX;
+    };
+    struct edge{
+        pair<int, int> e;
+        int weight;
+        edge(int u, int v, int weight){
+            e.first = u;
+            e.second = v;
+            this->weight = weight;
+        }
+    };
+    vector<edge>* list;
+    int Nv, Ne;
+    graph(int num){
+        Nv = num;
+        list = new vector<edge>;
+    }
+    void insert(int u, int v, int weight){
+        (*list).emplace_back(*new edge(u, v, weight));
+    }
+    static bool cmp(edge a, edge b){
+        return a.weight < b.weight;
+    }
+    int Kruskal(){
+        int result = 0;
+        unionFind myset(Nv);
+        sort(list->begin(), list->end(), cmp);
+        for(int i = 0; i < list->size(); i++){
+            if(myset.Union((*list)[i].e.first, (*list)[i].e.second)){
+                result += (*list)[i].weight;
+            }
+        }
+        if((*myset.rank)[(*myset.parent)[0]] != Nv){
+            result = -1;
+        }
+        return result;
+    }
+    struct unionFind{
+        vector<int>* rank;
+        vector<int>* parent;
+        unionFind(int n){
+            rank = new vector<int>(n);
+            for(int i = 0; i < (*rank).size(); i++){
+                (*rank)[i] = 1;
+            }
+            parent = new vector<int>(n);
+            for(int i = 0; i < (*parent).size(); i++){
+                (*parent)[i] = i;
+            }
+        }
+        int find(int x){
+            if(x != (*parent)[x]){
+                (*parent)[x] = find((*parent)[x]);
+            }
+            return (*parent)[x];
+        }
+        bool Union(int u, int v){
+            int pu = u, pv = v;
+            pu = find(u);
+            pv = find(v);
+            if(pu == pv) return false;
+            int scale;
+            if((*rank)[pu] < (*rank)[pv]){
+                scale = (*rank)[pu];
+                (*parent)[pu] = pv;
+                (*rank)[pv] += scale;
+            }else{
+                scale = (*rank)[pv];
+                (*parent)[pv] = pu;
+                (*rank)[pu] += scale;
+            }
+            return true;
+        }
+    };
+};
+int main(void){
+    int n;
+    cin >> n;
+    graph mg(n);
+    cin >> n;
+    int u,v,w;
+    for(int i = 0; i < n; i++){
+        scanf("%d %d %d",&u,&v,&w);
+        getchar();
+        mg.insert(u-1, v-1, w);
+    }
+    cout << mg.Kruskal();
+    return 0;
+}
