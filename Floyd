@@ -1,0 +1,80 @@
+#include<iostream>
+#include<stdlib.h>
+#include<vector>
+#include<algorithm>
+#include<limits.h>
+#include<cstring>
+#include<map>
+#define MAX 200
+using namespace std;
+class Graph{
+public:
+    int matrix[MAX][MAX];
+    int Nv,Ne;
+    Graph(int n){
+        Nv = n;
+        for(int i = 0; i < Nv; i++){
+            for(int j = 0; j < Nv; j++){
+                matrix[i][j] = INT_MAX;
+            }
+        }
+    }
+    void insert(){
+        int u, v, weight;
+        cin >> u >> v >> weight;
+        matrix[u-1][v-1] = weight;
+        matrix[v-1][u-1] = weight;
+    }
+    pair<int, int> Floyd(){
+        int d[MAX][MAX];
+        for(int i = 0; i < Nv; i++){
+            for(int j = 0; j < Nv; j++){
+                if(i == j){
+                    d[i][j] = 0;
+                }else{
+                    d[i][j] = matrix[i][j];
+                }
+            }
+        }
+        for(int k = 0; k < Nv; k++){
+            for(int i = 0; i < Nv; i++){
+                for(int j = 0; j < Nv; j++){
+                    if(d[i][k]!=INT_MAX && d[k][j]!=INT_MAX){
+                        if(d[i][k]+d[k][j] < d[i][j]){
+                            d[i][j] = d[i][k]+d[k][j];
+                        }
+                    }
+                }
+            }
+        }
+        map<int, int> res;
+        for(int i = 0; i < Nv; i++){
+            int r = 0;
+            for(int j = 0; j < Nv; j++){
+                if(d[i][j] > r){
+                    r = d[i][j];
+                }
+            }
+            if(res.find(r) == res.end()){
+                res[r] = i;
+            }
+        }
+        return *res.begin();
+    }
+};
+int main(){
+    int n;
+    cin >> n;
+    Graph mg(n);
+    cin >> n;
+    for(int i = 0; i < n; i++){
+        mg.insert();
+    }
+    pair<int, int> res = mg.Floyd();
+    if(res.first != INT_MAX){
+        cout << (res.second+1) << " " << res.first;
+    }else{
+        cout << 0;
+    }    
+    return 0;
+}
