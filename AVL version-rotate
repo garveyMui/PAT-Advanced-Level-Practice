@@ -1,0 +1,146 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+#include <limits.h>
+#include <algorithm>
+using namespace std;
+
+struct TreeNode {
+    int val, stature;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode* parent;
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {stature = 0; parent = nullptr;}
+    TreeNode(int x, TreeNode* p) : val(x), left(nullptr), right(nullptr), parent(p) {stature = 0;}
+};
+
+class AVL {
+public:
+    TreeNode* root = nullptr;
+    TreeNode* hot = nullptr;
+    int getStature(TreeNode* node){
+        if(!node) return -1;
+        return node->stature;
+    }
+    void updateHeight(TreeNode* v){
+        if(!v) return;
+        v->stature = max(getStature(v->left),
+                         getStature(v->right))+1;
+    }
+    void insert(){
+        int num;
+        scanf("%d", &num);
+        if(!root){
+            root = new TreeNode(num);
+            hot = nullptr;
+        }else{
+            if(!search(num)){
+                if(num < hot->val){
+                    hot->left = new TreeNode(num, hot);
+                }else{
+                    hot->right = new TreeNode(num, hot);
+                }
+            }
+        }
+        for(TreeNode* g = hot; g; g = g->parent){
+            int lh=-1, rh=-1;
+            lh = getStature(g->left);
+            rh = getStature(g->right);
+            if(lh-rh>1 || rh-lh>1){
+                rotate(g);
+                break;
+            }else{
+                g->stature = max(lh, rh)+1;
+            }
+        }
+    }
+    void rotate(TreeNode* g){
+        TreeNode** ptrToChild;
+        TreeNode* gp = g->parent;
+        if(gp){
+            if(g == gp->left){
+                ptrToChild = &(gp->left);
+            }else{
+                ptrToChild = &(gp->right);
+            }
+        }
+        TreeNode* p, *tmp;
+        if(getStature(g->left) > getStature(g->right)){
+            p = (*g).left;
+            if(getStature(p->left) > getStature(p->right)){
+                tmp = zig(g);
+                gp ? *ptrToChild = tmp : root = tmp;
+                tmp->parent = gp;
+            }else{
+                g->left = zag(p);
+                tmp = zig(g);
+                gp ? *ptrToChild = tmp : root = tmp;
+                tmp->parent = gp;
+            }
+        }else{
+            p = (*g).right;
+            if(getStature(p->left) > getStature(p->right)){
+                g->right = zig(p);
+                tmp = zag(g);
+                gp ? *ptrToChild = tmp : root = tmp;
+                tmp->parent = gp;
+            }else{
+                tmp = zag(g);
+                gp ? *ptrToChild = tmp : root = tmp;
+                tmp->parent = gp;
+            }
+        }
+    }
+    TreeNode* zig(TreeNode* cur){
+        TreeNode* neoRoot = cur->left;
+        cur->left = neoRoot->right;
+        if(neoRoot->right){
+            neoRoot->right->parent = cur;
+        }
+        neoRoot->right = cur;
+        cur->parent = neoRoot;
+        updateHeight(neoRoot->left);
+        updateHeight(neoRoot->right);
+        updateHeight(neoRoot);
+        return neoRoot;
+    }
+    TreeNode* zag(TreeNode* cur){
+        TreeNode* neoRoot = cur->right;
+        cur->right = neoRoot->left;
+        if(neoRoot->left){
+            neoRoot->left->parent = cur;
+        }
+        neoRoot->left = cur;
+        cur->parent = neoRoot;
+        updateHeight(neoRoot->left);
+        updateHeight(neoRoot->right);
+        updateHeight(neoRoot);
+        return neoRoot;
+    }
+    TreeNode* search(int num){
+        hot = nullptr;
+        TreeNode* cur = root;
+        while(true){
+            if(!cur || cur->val==num){
+                return cur;
+            }
+            hot = cur;
+            if(num < cur->val){
+                cur = cur->left;
+            }else{
+                cur = cur->right;
+            }
+        }
+    }
+};
+
+int main(){
+    int n;
+    cin >> n;
+    AVL myAvl;
+    for(int i = 0; i < n; i++){
+        myAvl.insert();
+    }
+    cout << myAvl.root->val;
+    return 0;
+}
