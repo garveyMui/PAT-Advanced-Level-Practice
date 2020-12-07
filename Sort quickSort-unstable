@@ -1,0 +1,56 @@
+#include <iostream>
+#include <vector>
+#include <cstdio>
+#include <limits.h>
+#include <algorithm>
+using namespace std;
+typedef int Rank;
+
+class quick{
+public:
+    vector<int> toBeSorted;
+    void sort(){
+        quickSort(0, toBeSorted.size());
+    }
+    void quickSort(Rank lo, Rank hi){
+        if((hi-lo) < 2) return;
+        Rank mi = partition(lo, hi);
+        quickSort(lo, mi);
+        quickSort(mi+1, hi);
+    }
+    void swap(int &a, int &b){
+        int tmp = a; a = b; b = tmp;
+    }
+    Rank partition(Rank lo, Rank hi){
+        srand((unsigned int)time(nullptr));
+        swap(toBeSorted[lo], toBeSorted[lo+rand()%(hi-lo)]);
+        hi--;
+        int pivot = toBeSorted[lo];
+        while(lo < hi){
+            while((lo < hi) && (toBeSorted[hi] >= pivot)) hi--;
+            toBeSorted[lo] = toBeSorted[hi];
+            while((lo < hi) && (toBeSorted[lo] <= pivot)) lo++;
+            toBeSorted[hi] = toBeSorted[lo];
+        }
+        toBeSorted[lo] = pivot;
+        return lo;
+    }
+};
+
+int main(){
+    int n;
+    cin >> n;
+    getchar();
+    int num;
+    quick q;
+    for(int i = 0; i < n; i++){
+        scanf("%d", &num);
+        q.toBeSorted.emplace_back(num);
+    }
+    q.sort();
+    cout << q.toBeSorted[0];
+    for(int i = 1; i < n; i++){
+        cout << " " << q.toBeSorted[i];
+    }
+    return 0;
+}
