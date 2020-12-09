@@ -1,0 +1,55 @@
+#include <iostream>
+#include <vector>
+#include <list>
+#include <cstdio>
+#include <limits.h>
+#include <algorithm>
+using namespace std;
+typedef int Rank;
+
+class Sort{
+public:
+    vector<int> elem;
+    void sort(){
+        shellSort(0, elem.size());
+    }
+    void shellSort(Rank lo, Rank hi){
+        if((hi-lo) < 2) return;
+        vector<int> inc = {1};
+        for(auto i : inc){
+            insertionSort(i);
+        }
+    }
+
+    void insertionSort(int increment){
+        for(int i = increment; i < elem.size(); i += increment){
+            int tmp = elem[i];
+            for(int j = i-increment; j >= -increment; j -= increment){
+                if(j == -increment || tmp >= elem[j]){
+                    elem[j+increment] = tmp;
+                    break;
+                }else{
+                    elem[j+increment] = elem[j];
+                }
+            }
+        }
+    }
+};
+
+int main(){
+    int n;
+    cin >> n;
+    getchar();
+    int num;
+    Sort q;
+    for(int i = 0; i < n; i++){
+        scanf("%d", &num);
+        q.elem.emplace_back(num);
+    }
+    q.sort();
+    cout << q.elem[0];
+    for(int i = 1; i < n; i++){
+        cout << " " << q.elem[i];
+    }
+    return 0;
+}
